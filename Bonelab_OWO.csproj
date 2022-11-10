@@ -39,10 +39,6 @@
       <HintPath>F:\SteamLibrary\steamapps\common\BONELAB\MelonLoader\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="bHapticsLib">
-      <HintPath>F:\SteamLibrary\steamapps\common\BONELAB\MelonLoader\bHapticsLib.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Il2Cppmscorlib">
       <HintPath>F:\SteamLibrary\steamapps\common\BONELAB\MelonLoader\Managed\Il2Cppmscorlib.dll</HintPath>
       <Private>False</Private>
@@ -51,7 +47,8 @@
       <HintPath>F:\SteamLibrary\steamapps\common\BONELAB\MelonLoader\MelonLoader.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="OWO.dev">
+    <Reference Include="OWO.dev, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\OWO_SDK\OWO.dev.dll</HintPath>
     </Reference>
     <Reference Include="SLZ.Marrow">

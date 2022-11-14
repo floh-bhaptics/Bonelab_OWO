@@ -133,7 +133,10 @@ namespace MyOwoVest
 
         public void ArmHit(string pattern, bool isRightArm)
         {
-
+            ISensation sensation = FeedbackMap[pattern];
+            Muscle myMuscle = Muscle.Arm_L;
+            if (isRightArm) myMuscle = Muscle.Arm_R;
+            OWO.Send(sensation, myMuscle);
         }
 
         public void GunRecoil(bool isRightHand, float intensity=1.0f, bool isTwoHanded=false, bool supportHand=true)

@@ -94,39 +94,44 @@ namespace MyOwoVest
 
         public void PlayBackHit(string pattern, float xzAngle, float yShift)
         {
-            
-            Sensation sensation = Sensation.ShotEntry;
-            // two parameters can be given to the pattern to move it on the vest:
-            // 1. An angle in degrees [0, 360] to turn the pattern to the left
-            // 2. A shift [-0.5, 0.5] in y-direction (up and down) to move it up or down
-            if ((xzAngle < 90f))
+            if (FeedbackMap.ContainsKey(pattern))
             {
-                if (yShift >= 0f) OWO.Send(sensation, Muscle.Pectoral_R);
-                else OWO.Send(sensation, Muscle.Abdominal_R);
+                ISensation sensation = FeedbackMap[pattern];
+                // two parameters can be given to the pattern to move it on the vest:
+                // 1. An angle in degrees [0, 360] to turn the pattern to the left
+                // 2. A shift [-0.5, 0.5] in y-direction (up and down) to move it up or down
+                if ((xzAngle < 90f))
+                {
+                    if (yShift >= 0f) OWO.Send(sensation, Muscle.Pectoral_R);
+                    else OWO.Send(sensation, Muscle.Abdominal_R);
+                }
+                if ((xzAngle > 90f) && (xzAngle < 180f))
+                {
+                    if (yShift >= 0f) OWO.Send(sensation, Muscle.Dorsal_R);
+                    else OWO.Send(sensation, Muscle.Lumbar_R);
+                }
+                if ((xzAngle > 180f) && (xzAngle < 270f))
+                {
+                    if (yShift >= 0f) OWO.Send(sensation, Muscle.Dorsal_L);
+                    else OWO.Send(sensation, Muscle.Lumbar_L);
+                }
+                if ((xzAngle > 270f))
+                {
+                    if (yShift >= 0f) OWO.Send(sensation, Muscle.Pectoral_R);
+                    else OWO.Send(sensation, Muscle.Abdominal_R);
+                }
             }
-            if ((xzAngle > 90f) && (xzAngle < 180f))
+            else
             {
-                if (yShift >= 0f) OWO.Send(sensation, Muscle.Dorsal_R);
-                else OWO.Send(sensation, Muscle.Lumbar_R);
+                LOG("Feedback not registered: " + pattern);
+                return;
             }
-            if ((xzAngle > 180f) && (xzAngle < 270f))
-            {
-                if (yShift >= 0f) OWO.Send(sensation, Muscle.Dorsal_L);
-                else OWO.Send(sensation, Muscle.Lumbar_L);
-            }
-            if ((xzAngle > 270f))
-            {
-                if (yShift >= 0f) OWO.Send(sensation, Muscle.Pectoral_R);
-                else OWO.Send(sensation, Muscle.Abdominal_R);
-            }
-            
-            /*
-            if ((xzAngle < 180f))
-            {
-                OWO.Send(FeedbackMap["Hit_Front"]);
-            }
-            else OWO.Send(FeedbackMap["Hit_Back"]);
-            */
+
+        }
+
+        public void ArmHit(string pattern, bool isRightArm)
+        {
+
         }
 
         public void GunRecoil(bool isRightHand, float intensity=1.0f, bool isTwoHanded=false, bool supportHand=true)

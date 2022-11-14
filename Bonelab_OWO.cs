@@ -18,7 +18,7 @@ namespace Bonelab_OWO
         public override void OnInitializeMelon()
         {
             tactsuitVr = new TactsuitVR();
-            tactsuitVr.PlayBackFeedback("HeartBeat");
+            tactsuitVr.PlayBackFeedback("Startup");
         }
 
         [HarmonyPatch(typeof(SLZ.Props.Weapons.Gun), "Fire", new Type[] { })]
@@ -130,31 +130,31 @@ namespace Bonelab_OWO
                 switch (attack.attackType)
                 {
                     case SLZ.Marrow.Data.AttackType.Piercing:
-                        damagePattern = "BulletHit";
+                        damagePattern = "HitShot";
                         break;
                     case SLZ.Marrow.Data.AttackType.Blunt:
-                        damagePattern = "Impact";
+                        damagePattern = "HitDefault";
                         break;
                     case SLZ.Marrow.Data.AttackType.Electric:
-                        damagePattern = "ElectricHit";
+                        damagePattern = "HitElectric";
                         break;
                     case SLZ.Marrow.Data.AttackType.Explosive:
-                        damagePattern = "ExplosionFace";
+                        damagePattern = "Explosion";
                         break;
                     case SLZ.Marrow.Data.AttackType.Fire:
-                        damagePattern = "LavaballHit";
+                        damagePattern = "HitFire";
                         break;
                     case SLZ.Marrow.Data.AttackType.Ice:
-                        damagePattern = "FreezeHit";
+                        damagePattern = "HitFreeze";
                         break;
                     case SLZ.Marrow.Data.AttackType.Slicing:
-                        damagePattern = "BladeHit";
+                        damagePattern = "HitBlade";
                         break;
                     case SLZ.Marrow.Data.AttackType.Stabbing:
-                        damagePattern = "BulletHit";
+                        damagePattern = "HitShot";
                         break;
                     default:
-                        damagePattern = "Impact";
+                        damagePattern = "HitDefault";
                         break;
                 }
                 float absoluteDamage = Math.Abs(attack.damage);
@@ -164,13 +164,13 @@ namespace Bonelab_OWO
                 }
                 if (__instance.bodyPart == PlayerDamageReceiver.BodyPart.LeftArm)
                 {
-                    tactsuitVr.PlayBackFeedback("Recoil_L");
+                    tactsuitVr.ArmHit(damagePattern, false);
                     hapticsApplied = true;
                     absoluteDamage *= armDamage;
                 }
                 if (__instance.bodyPart == PlayerDamageReceiver.BodyPart.RightArm)
                 {
-                    tactsuitVr.PlayBackFeedback("Recoil_R");
+                    tactsuitVr.ArmHit(damagePattern, true);
                     hapticsApplied = true;
                     absoluteDamage *= armDamage;
                 }

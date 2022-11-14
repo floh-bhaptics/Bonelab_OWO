@@ -97,29 +97,31 @@ namespace MyOwoVest
             if (FeedbackMap.ContainsKey(pattern))
             {
                 ISensation sensation = FeedbackMap[pattern];
+                Muscle myMuscle = Muscle.Pectoral_R;
                 // two parameters can be given to the pattern to move it on the vest:
                 // 1. An angle in degrees [0, 360] to turn the pattern to the left
                 // 2. A shift [-0.5, 0.5] in y-direction (up and down) to move it up or down
                 if ((xzAngle < 90f))
                 {
-                    if (yShift >= 0f) OWO.Send(sensation, Muscle.Pectoral_R);
-                    else OWO.Send(sensation, Muscle.Abdominal_R);
+                    if (yShift >= 0f) myMuscle = Muscle.Pectoral_R;
+                    else myMuscle = Muscle.Abdominal_R;
                 }
                 if ((xzAngle > 90f) && (xzAngle < 180f))
                 {
-                    if (yShift >= 0f) OWO.Send(sensation, Muscle.Dorsal_R);
-                    else OWO.Send(sensation, Muscle.Lumbar_R);
+                    if (yShift >= 0f) myMuscle = Muscle.Dorsal_R;
+                    else myMuscle = Muscle.Lumbar_R;
                 }
                 if ((xzAngle > 180f) && (xzAngle < 270f))
                 {
-                    if (yShift >= 0f) OWO.Send(sensation, Muscle.Dorsal_L);
-                    else OWO.Send(sensation, Muscle.Lumbar_L);
+                    if (yShift >= 0f) myMuscle = Muscle.Dorsal_L;
+                    else myMuscle = Muscle.Lumbar_L;
                 }
                 if ((xzAngle > 270f))
                 {
-                    if (yShift >= 0f) OWO.Send(sensation, Muscle.Pectoral_R);
-                    else OWO.Send(sensation, Muscle.Abdominal_R);
+                    if (yShift >= 0f) myMuscle = Muscle.Pectoral_L;
+                    else myMuscle = Muscle.Abdominal_L;
                 }
+                OWO.Send(sensation, myMuscle);
             }
             else
             {

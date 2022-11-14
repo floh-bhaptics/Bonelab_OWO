@@ -33,7 +33,9 @@ namespace Bonelab_OWO
 
                 if (__instance == null) return;
                 if (__instance.triggerGrip == null) return;
-                if (__instance.AmmoCount() == 0) return;
+                if (__instance.triggerGrip.attachedHands == null) return;
+                try { if (__instance.AmmoCount() <= 0) return; }
+                catch (NullReferenceException) { tactsuitVr.LOG("NullReference in AmmoCount."); return; }
                 twoHanded = (__instance.triggerGrip.attachedHands.Count > 1);
                 
                 foreach (var myHand in __instance.triggerGrip.attachedHands)

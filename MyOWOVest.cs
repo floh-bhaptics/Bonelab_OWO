@@ -39,6 +39,7 @@ namespace MyOwoVest
             {
                 suitDisabled = false;
                 LOG("OWO suit connected.");
+                PlayBackFeedback("Startup");
             }
             if (suitDisabled) LOG("Owo is not enabled?!?!");
         }

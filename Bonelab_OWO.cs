@@ -18,7 +18,7 @@ namespace Bonelab_OWO
         public override void OnInitializeMelon()
         {
             tactsuitVr = new TactsuitVR();
-            tactsuitVr.PlayBackFeedback("Startup");
+            
         }
 
         [HarmonyPatch(typeof(SLZ.Props.Weapons.Gun), "Fire", new Type[] { })]

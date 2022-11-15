@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 using MelonLoader;
 using HarmonyLib;
 using UnityEngine;
@@ -14,6 +12,8 @@ namespace Bonelab_OWO
     {
         public static TactsuitVR tactsuitVr;
         public static bool playerRightHanded = true;
+        public static Stopwatch heartTimer = new Stopwatch();
+
 
         public override void OnInitializeMelon()
         {
@@ -258,17 +258,28 @@ namespace Bonelab_OWO
         }
 
 
-
+        
         [HarmonyPatch(typeof(Player_Health), "Update", new Type[] { })]
         public class bhaptics_PlayerHealthUpdate
         {
             [HarmonyPostfix]
             public static void Postfix(Player_Health __instance)
             {
-                if (__instance.curr_Health <= 0.3f * __instance.max_Health) tactsuitVr.PlayBackFeedback("ThreeHeartBeats");
+                if (__instance.curr_Health <= 0.3f * __instance.max_Health)
+                {
+                    if (!heartTimer.IsRunning)
+                    {
+                        heartTimer.Start();
+                        tactsuitVr.PlayBackFeedback("ThreeHeartBeats");
+                        return;
+                    }
+                    if (heartTimer.ElapsedMilliseconds <= 2000) return;
+                    heartTimer.Restart();
+                    tactsuitVr.PlayBackFeedback("ThreeHeartBeats");
+                }
             }
         }
-
+        
         [HarmonyPatch(typeof(PullCordDevice), "SwapAvatar", new Type[] { typeof(SLZ.Marrow.Warehouse.AvatarCrateReference) })]
         public class bhaptics_SwapAvatar
         {

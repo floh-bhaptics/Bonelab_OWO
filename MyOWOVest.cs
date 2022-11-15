@@ -21,6 +21,7 @@ namespace MyOwoVest
         public bool systemInitialized = false;
         // Event to start and stop the heartbeat thread
         public Dictionary<String, ISensation> FeedbackMap = new Dictionary<String, ISensation>();
+        public Dictionary<String, ISensation> FeedbackMapWithoutMuscles = new Dictionary<String, ISensation>();
 
         public TactsuitVR()
         {
@@ -77,12 +78,17 @@ namespace MyOwoVest
                 if (filename == "." || filename == "..")
                     continue;
                 string tactFileStr = File.ReadAllText(fullName);
+                string tactFileStrWithoutMuscles = DetachFromMuscles(tactFileStr);
+                //LOG("Original: " + tactFileStr);
+                //LOG("No muscles: " + tactFileStrWithoutMuscles);
                 try
                 {
                     ISensation test = Sensation.FromCode(tactFileStr);
+                    ISensation testNoMuscles = Sensation.FromCode(tactFileStrWithoutMuscles);
                     //bHaptics.RegisterFeedback(prefix, tactFileStr);
                     LOG("Pattern registered: " + prefix);
                     FeedbackMap.Add(prefix, test);
+                    FeedbackMapWithoutMuscles.Add(prefix, testNoMuscles);
                 }
                 catch (Exception e) { LOG(e.ToString()); }
 
@@ -92,34 +98,39 @@ namespace MyOwoVest
         }
 
 
+        public string DetachFromMuscles(string pattern)
+        {
+            return System.Text.RegularExpressions.Regex.Replace(pattern, "\\|([0-9]%[0-9]+(,)*)+", "");
+        }
+
         public void PlayBackHit(string pattern, float xzAngle, float yShift)
         {
             if (FeedbackMap.ContainsKey(pattern))
             {
-                ISensation sensation = FeedbackMap[pattern];
+                ISensation sensation = FeedbackMapWithoutMuscles[pattern];
                 Muscle myMuscle = Muscle.Pectoral_R;
                 // two parameters can be given to the pattern to move it on the vest:
                 // 1. An angle in degrees [0, 360] to turn the pattern to the left
                 // 2. A shift [-0.5, 0.5] in y-direction (up and down) to move it up or down
                 if ((xzAngle < 90f))
                 {
-                    if (yShift >= 0f) myMuscle = Muscle.Pectoral_R;
-                    else myMuscle = Muscle.Abdominal_R;
+                    if (yShift >= 0f) myMuscle = Muscle.Pectoral_L;
+                    else myMuscle = Muscle.Abdominal_L;
                 }
                 if ((xzAngle > 90f) && (xzAngle < 180f))
-                {
-                    if (yShift >= 0f) myMuscle = Muscle.Dorsal_R;
-                    else myMuscle = Muscle.Lumbar_R;
-                }
-                if ((xzAngle > 180f) && (xzAngle < 270f))
                 {
                     if (yShift >= 0f) myMuscle = Muscle.Dorsal_L;
                     else myMuscle = Muscle.Lumbar_L;
                 }
+                if ((xzAngle > 180f) && (xzAngle < 270f))
+                {
+                    if (yShift >= 0f) myMuscle = Muscle.Dorsal_R;
+                    else myMuscle = Muscle.Lumbar_R;
+                }
                 if ((xzAngle > 270f))
                 {
-                    if (yShift >= 0f) myMuscle = Muscle.Pectoral_L;
-                    else myMuscle = Muscle.Abdominal_L;
+                    if (yShift >= 0f) myMuscle = Muscle.Pectoral_R;
+                    else myMuscle = Muscle.Abdominal_R;
                 }
                 OWO.Send(sensation, myMuscle);
             }

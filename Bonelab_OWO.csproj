@@ -18,6 +18,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="OWO" Version="2.3.10" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="0Harmony">
       <HintPath>F:\SteamLibrary\steamapps\common\BONELAB\MelonLoader\net6\0Harmony.dll</HintPath>
       <Private>False</Private>
@@ -50,9 +54,6 @@
       <HintPath>F:\SteamLibrary\steamapps\common\BONELAB\MelonLoader\net6\MelonLoader.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="OWO">
-      <HintPath>..\OWO_SDK\OWO.dev.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>F:\SteamLibrary\steamapps\common\BONELAB\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
@@ -64,7 +65,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="XCOPY &quot;$(ProjectDir)OWO\&quot; &quot;$(TargetDir)OWO\&quot; /S /Y" />
+    <Exec Command="XCOPY &quot;$(ProjectDir)OWO\&quot; &quot;$(TargetDir)OWO\&quot; /S /Y&#xD;&#xA;XCOPY &quot;C:\Users\Flori\.nuget\packages\owo\2.3.10\lib\net6.0\OWO.dll&quot; &quot;$(TargetDir)..\UserLibs\&quot; /S /Y" />
   </Target>
   
 </Project>

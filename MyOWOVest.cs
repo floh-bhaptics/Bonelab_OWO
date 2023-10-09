@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Text;
 using System.Threading;
 using MelonLoader;
-using OWOHaptic;
+using OWOGame;
 //using MyOWOSensations;
 
 namespace MyOwoVest
@@ -20,8 +21,7 @@ namespace MyOwoVest
         public bool suitDisabled = true;
         public bool systemInitialized = false;
         // Event to start and stop the heartbeat thread
-        public Dictionary<String, ISensation> FeedbackMap = new Dictionary<String, ISensation>();
-        public Dictionary<String, ISensation> FeedbackMapWithoutMuscles = new Dictionary<String, ISensation>();
+        public Dictionary<String, Sensation> FeedbackMap = new Dictionary<String, Sensation>();
 
         public TactsuitVR()
         {
@@ -33,15 +33,37 @@ namespace MyOwoVest
         {
             LOG("Initializing suit");
 
-            await OWO.AutoConnectAsync();
+            // New auth.
+            var gameAuth = GameAuth.Create(AllBakedSensations()).WithId("40872061");
 
-            if (OWO.IsConnected)
+            OWO.Configure(gameAuth);
+            string myIP = getIpFromFile("OWO_Manual_IP.txt");
+            if (myIP == "") await OWO.AutoConnect();
+            else
+            {
+                LOG("Found manual IP address: " + myIP);
+                await OWO.Connect(myIP);
+            }
+
+            if (OWO.ConnectionState == ConnectionState.Connected)
             {
                 suitDisabled = false;
                 LOG("OWO suit connected.");
-                PlayBackFeedback("Startup");
             }
             if (suitDisabled) LOG("Owo is not enabled?!?!");
+        }
+
+        public string getIpFromFile(string filename)
+        {
+            string ip = "";
+            string filePath = Directory.GetCurrentDirectory() + "\\Mods\\" + filename;
+            if (File.Exists(filePath))
+            {
+                string fileBuffer = File.ReadAllText(filePath);
+                IPAddress address;
+                if (IPAddress.TryParse(fileBuffer, out address)) ip = fileBuffer;
+            }
+            return ip;
         }
 
         ~TactsuitVR()
@@ -50,6 +72,22 @@ namespace MyOwoVest
             DisconnectOwo();
         }
 
+        private BakedSensation[] AllBakedSensations()
+        {
+            var result = new List<BakedSensation>();
+
+            foreach (var sensation in FeedbackMap.Values)
+            {
+                if (sensation is not BakedSensation baked)
+                {
+                    LOG("Sensation not baked? " + sensation);
+                    continue;
+                }
+                LOG("Registered baked sensation: " + baked.name);
+                result.Add(baked);
+            }
+            return result.ToArray();
+        }
 
         public void DisconnectOwo()
         {
@@ -59,9 +97,7 @@ namespace MyOwoVest
 
         public void LOG(string logStr)
         {
-#pragma warning disable CS0618 // remove warning that the logger is deprecated
             MelonLogger.Msg(logStr);
-#pragma warning restore CS0618
         }
 
         void RegisterAllTactFiles()
@@ -79,17 +115,10 @@ namespace MyOwoVest
                 if (filename == "." || filename == "..")
                     continue;
                 string tactFileStr = File.ReadAllText(fullName);
-                string tactFileStrWithoutMuscles = DetachFromMuscles(tactFileStr);
-                //LOG("Original: " + tactFileStr);
-                //LOG("No muscles: " + tactFileStrWithoutMuscles);
                 try
                 {
-                    ISensation test = Sensation.FromCode(tactFileStr);
-                    ISensation testNoMuscles = Sensation.FromCode(tactFileStrWithoutMuscles);
-                    //bHaptics.RegisterFeedback(prefix, tactFileStr);
-                    LOG("Pattern registered: " + prefix);
+                    Sensation test = Sensation.Parse(tactFileStr);
                     FeedbackMap.Add(prefix, test);
-                    FeedbackMapWithoutMuscles.Add(prefix, testNoMuscles);
                 }
                 catch (Exception e) { LOG(e.ToString()); }
 
@@ -97,7 +126,6 @@ namespace MyOwoVest
 
             systemInitialized = true;
         }
-
 
         public string DetachFromMuscles(string pattern)
         {
@@ -108,11 +136,12 @@ namespace MyOwoVest
         {
             if (FeedbackMap.ContainsKey(pattern))
             {
-                ISensation sensation = FeedbackMapWithoutMuscles[pattern];
+                Sensation sensation = FeedbackMap[pattern];
                 Muscle myMuscle = Muscle.Pectoral_R;
                 // two parameters can be given to the pattern to move it on the vest:
                 // 1. An angle in degrees [0, 360] to turn the pattern to the left
                 // 2. A shift [-0.5, 0.5] in y-direction (up and down) to move it up or down
+                if (sensation is SensationWithMuscles) { PlayBackFeedback(pattern); return; }
                 if ((xzAngle < 90f))
                 {
                     if (yShift >= 0f) myMuscle = Muscle.Pectoral_L;
@@ -133,7 +162,7 @@ namespace MyOwoVest
                     if (yShift >= 0f) myMuscle = Muscle.Pectoral_R;
                     else myMuscle = Muscle.Abdominal_R;
                 }
-                OWO.Send(sensation, myMuscle);
+                PlayBackFeedback(pattern, myMuscle);
             }
             else
             {
@@ -145,10 +174,11 @@ namespace MyOwoVest
 
         public void ArmHit(string pattern, bool isRightArm)
         {
-            ISensation sensation = FeedbackMap[pattern];
+            Sensation sensation = FeedbackMap[pattern];
+            if (sensation is SensationWithMuscles) { PlayBackFeedback(pattern); return; }
             Muscle myMuscle = Muscle.Arm_L;
             if (isRightArm) myMuscle = Muscle.Arm_R;
-            OWO.Send(sensation, myMuscle);
+            PlayBackFeedback(pattern, myMuscle);
         }
 
         public void GunRecoil(bool isRightHand, float intensity=1.0f, bool isTwoHanded=false, bool supportHand=true)
@@ -167,6 +197,24 @@ namespace MyOwoVest
             if (FeedbackMap.ContainsKey(feedback))
             {
                 OWO.Send(FeedbackMap[feedback]);
+            }
+            else LOG("Feedback not registered: " + feedback);
+        }
+
+        public void PlayBackFeedback(string feedback, Muscle onMuscle)
+        {
+            if (FeedbackMap.ContainsKey(feedback))
+            {
+                OWO.Send(FeedbackMap[feedback].WithMuscles(onMuscle));
+            }
+            else LOG("Feedback not registered: " + feedback);
+        }
+
+        public void PlayBackFeedback(string feedback, Muscle[] onMuscles)
+        {
+            if (FeedbackMap.ContainsKey(feedback))
+            {
+                OWO.Send(FeedbackMap[feedback].WithMuscles(onMuscles));
             }
             else LOG("Feedback not registered: " + feedback);
         }

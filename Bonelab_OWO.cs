@@ -5,9 +5,9 @@ using MelonLoader;
 using HarmonyLib;
 using UnityEngine;
 using MyOwoVest;
-using Il2Cpp;
+//using Il2Cpp;
 
-[assembly: MelonInfo(typeof(Bonelab_OWO.Bonelab_OWO), "Bonelab_OWO", "3.0.1", "Florian Fahrenberger")]
+[assembly: MelonInfo(typeof(Bonelab_OWO.Bonelab_OWO), "Bonelab_OWO", "3.0.1.1", "Florian Fahrenberger")]
 [assembly: MelonGame("Stress Level Zero", "BONELAB")]
 
 namespace Bonelab_OWO
@@ -25,11 +25,11 @@ namespace Bonelab_OWO
             
         }
 
-        [HarmonyPatch(typeof(Il2CppSLZ.Props.Weapons.Gun), "Fire", new Type[] { })]
+        [HarmonyPatch(typeof(SLZ.Props.Weapons.Gun), "Fire", new Type[] { })]
         public class bhaptics_FireGun
         {
             [HarmonyPostfix]
-            public static void Postfix(Il2CppSLZ.Props.Weapons.Gun __instance)
+            public static void Postfix(SLZ.Props.Weapons.Gun __instance)
             {
                 bool rightHanded = false;
                 bool twoHanded = false;
@@ -44,7 +44,7 @@ namespace Bonelab_OWO
                 
                 foreach (var myHand in __instance.triggerGrip.attachedHands)
                 {
-                    if (myHand.handedness == Il2CppSLZ.Handedness.RIGHT) rightHanded = true;
+                    if (myHand.handedness == SLZ.Handedness.RIGHT) rightHanded = true;
                 }
 
                 if (__instance.otherGrips != null)
@@ -55,8 +55,8 @@ namespace Bonelab_OWO
                         {
                             foreach (var myHand in myGrip.attachedHands)
                             {
-                                if ((myHand.handedness == Il2CppSLZ.Handedness.LEFT) && (rightHanded)) supportHand = true;
-                                if ((myHand.handedness == Il2CppSLZ.Handedness.RIGHT) && (!rightHanded)) supportHand = true;
+                                if ((myHand.handedness == SLZ.Handedness.LEFT) && (rightHanded)) supportHand = true;
+                                if ((myHand.handedness == SLZ.Handedness.RIGHT) && (!rightHanded)) supportHand = true;
                             }
                         }
                     }
@@ -122,11 +122,11 @@ namespace Bonelab_OWO
         }
         */
 
-        [HarmonyPatch(typeof(PlayerDamageReceiver), "ReceiveAttack", new Type[] { typeof(Il2CppSLZ.Combat.Attack) })]
+        [HarmonyPatch(typeof(PlayerDamageReceiver), "ReceiveAttack", new Type[] { typeof(SLZ.Combat.Attack) })]
         public class bhaptics_ReceiveAttack
         {
             [HarmonyPostfix]
-            public static void Postfix(PlayerDamageReceiver __instance, Il2CppSLZ.Combat.Attack attack)
+            public static void Postfix(PlayerDamageReceiver __instance, SLZ.Combat.Attack attack)
             {
                 float armDamage = 0.2f;
                 float headDamage = 0.8f;
@@ -135,28 +135,28 @@ namespace Bonelab_OWO
                 bool hapticsApplied = false;
                 switch (attack.attackType)
                 {
-                    case Il2CppSLZ.Marrow.Data.AttackType.Piercing:
+                    case SLZ.Marrow.Data.AttackType.Piercing:
                         damagePattern = "HitShot";
                         break;
-                    case Il2CppSLZ.Marrow.Data.AttackType.Blunt:
+                    case SLZ.Marrow.Data.AttackType.Blunt:
                         damagePattern = "HitDefault";
                         break;
-                    case Il2CppSLZ.Marrow.Data.AttackType.Electric:
+                    case SLZ.Marrow.Data.AttackType.Electric:
                         damagePattern = "HitElectric";
                         break;
-                    case Il2CppSLZ.Marrow.Data.AttackType.Explosive:
+                    case SLZ.Marrow.Data.AttackType.Explosive:
                         damagePattern = "Explosion";
                         break;
-                    case Il2CppSLZ.Marrow.Data.AttackType.Fire:
+                    case SLZ.Marrow.Data.AttackType.Fire:
                         damagePattern = "HitFire";
                         break;
-                    case Il2CppSLZ.Marrow.Data.AttackType.Ice:
+                    case SLZ.Marrow.Data.AttackType.Ice:
                         damagePattern = "HitFreeze";
                         break;
-                    case Il2CppSLZ.Marrow.Data.AttackType.Slicing:
+                    case SLZ.Marrow.Data.AttackType.Slicing:
                         damagePattern = "HitBlade";
                         break;
-                    case Il2CppSLZ.Marrow.Data.AttackType.Stabbing:
+                    case SLZ.Marrow.Data.AttackType.Stabbing:
                         damagePattern = "HitShot";
                         break;
                     default:
@@ -192,16 +192,16 @@ namespace Bonelab_OWO
         }
 
         
-        [HarmonyPatch(typeof(Il2CppSLZ.Interaction.InventorySlotReceiver), "OnHandGrab", new Type[] { typeof(Il2CppSLZ.Interaction.Hand) })]
+        [HarmonyPatch(typeof(SLZ.Interaction.InventorySlotReceiver), "OnHandGrab", new Type[] { typeof(SLZ.Interaction.Hand) })]
         public class bhaptics_SlotGrab
         {
             [HarmonyPostfix]
-            public static void Postfix(Il2CppSLZ.Interaction.InventorySlotReceiver __instance, Il2CppSLZ.Interaction.Hand hand)
+            public static void Postfix(SLZ.Interaction.InventorySlotReceiver __instance, SLZ.Interaction.Hand hand)
             {
                 if (__instance.isInUIMode) return;
                 if (hand == null) return;
-                bool rightHand = (hand.handedness == Il2CppSLZ.Handedness.RIGHT);
-                if (__instance.slotType == Il2CppSLZ.Props.Weapons.WeaponSlot.SlotType.SIDEARM)
+                bool rightHand = (hand.handedness == SLZ.Handedness.RIGHT);
+                if (__instance.slotType == SLZ.Props.Weapons.WeaponSlot.SlotType.SIDEARM)
                 {
                     if (rightHand) tactsuitVr.PlayBackFeedback("GrabGun_L");
                     else tactsuitVr.PlayBackFeedback("GrabGun_R");
@@ -214,19 +214,19 @@ namespace Bonelab_OWO
             }
         }
 
-        [HarmonyPatch(typeof(Il2CppSLZ.Interaction.InventorySlotReceiver), "OnHandDrop", new Type[] { typeof(Il2CppSLZ.Interaction.IGrippable) })]
+        [HarmonyPatch(typeof(SLZ.Interaction.InventorySlotReceiver), "OnHandDrop", new Type[] { typeof(SLZ.Interaction.IGrippable) })]
         public class bhaptics_SlotInsert
         {
             [HarmonyPostfix]
-            public static void Postfix(Il2CppSLZ.Interaction.InventorySlotReceiver __instance, Il2CppSLZ.Interaction.IGrippable host)
+            public static void Postfix(SLZ.Interaction.InventorySlotReceiver __instance, SLZ.Interaction.IGrippable host)
             {
                 if (__instance == null) return;
                 if (__instance.isInUIMode) return;
                 if (host == null) return;
-                Il2CppSLZ.Interaction.Hand hand = host.GetLastHand();
+                SLZ.Interaction.Hand hand = host.GetLastHand();
                 if (hand == null) return;
-                bool rightHand = (hand.handedness == Il2CppSLZ.Handedness.RIGHT);
-                if (__instance.slotType == Il2CppSLZ.Props.Weapons.WeaponSlot.SlotType.SIDEARM)
+                bool rightHand = (hand.handedness == SLZ.Handedness.RIGHT);
+                if (__instance.slotType == SLZ.Props.Weapons.WeaponSlot.SlotType.SIDEARM)
                 {
                     if (rightHand) tactsuitVr.PlayBackFeedback("StoreGun_L");
                     else tactsuitVr.PlayBackFeedback("StoreGun_R");
@@ -251,11 +251,11 @@ namespace Bonelab_OWO
         }
         */
 
-        [HarmonyPatch(typeof(Il2CppSLZ.SaveData.PlayerSettings), "OnPropertyChanged", new Type[] { typeof(string) })]
+        [HarmonyPatch(typeof(SLZ.SaveData.PlayerSettings), "OnPropertyChanged", new Type[] { typeof(string) })]
         public class bhaptics_PropertyChanged
         {
             [HarmonyPostfix]
-            public static void Postfix(Il2CppSLZ.SaveData.PlayerSettings __instance)
+            public static void Postfix(SLZ.SaveData.PlayerSettings __instance)
             {
                 playerRightHanded = __instance.RightHanded;
             }
@@ -284,7 +284,7 @@ namespace Bonelab_OWO
             }
         }
         
-        [HarmonyPatch(typeof(Il2CppSLZ.Props.PullCordDevice), "SwapAvatar", new Type[] { typeof(Il2CppSLZ.Marrow.Warehouse.AvatarCrateReference) })]
+        [HarmonyPatch(typeof(SLZ.Props.PullCordDevice), "SwapAvatar", new Type[] { typeof(SLZ.Marrow.Warehouse.AvatarCrateReference) })]
         public class bhaptics_SwapAvatar
         {
             [HarmonyPostfix]

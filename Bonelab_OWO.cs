@@ -7,7 +7,7 @@ using UnityEngine;
 using MyOwoVest;
 using Il2CppSLZ.Bonelab;
 
-[assembly: MelonInfo(typeof(Bonelab_OWO.Bonelab_OWO), "Bonelab_OWO", "3.0.1", "Florian Fahrenberger")]
+[assembly: MelonInfo(typeof(Bonelab_OWO.Bonelab_OWO), "Bonelab_OWO", "4.0.0", "Florian Fahrenberger")]
 [assembly: MelonGame("Stress Level Zero", "BONELAB")]
 
 namespace Bonelab_OWO

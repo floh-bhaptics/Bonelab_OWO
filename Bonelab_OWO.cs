@@ -7,7 +7,7 @@ using UnityEngine;
 using MyOwoVest;
 using Il2CppSLZ.Bonelab;
 
-[assembly: MelonInfo(typeof(Bonelab_OWO.Bonelab_OWO), "Bonelab_OWO", "4.0.0", "Florian Fahrenberger")]
+[assembly: MelonInfo(typeof(Bonelab_OWO.Bonelab_OWO), "Bonelab_OWO", "4.0.1", "Florian Fahrenberger")]
 [assembly: MelonGame("Stress Level Zero", "BONELAB")]
 
 namespace Bonelab_OWO
@@ -250,7 +250,7 @@ namespace Bonelab_OWO
                 tactsuitVr.PlayBackFeedback("SloMo");
             }
         }
-        */
+        
 
         [HarmonyPatch(typeof(Il2CppSLZ.Bonelab.SaveData.PlayerSettings), "FixFieldsIfNeeded", new Type[] { })]
         public class bhaptics_PropertyChanged
@@ -261,7 +261,7 @@ namespace Bonelab_OWO
                 playerRightHanded = __instance.RightHanded;
             }
         }
-
+        */
 
 
         [HarmonyPatch(typeof(Player_Health), "UpdateHealth", new Type[] { typeof(float) })]
